@@ -1,0 +1,12 @@
+{
+  "name": "recruiter-bot",
+  "version": "1.0.0",
+  "description": "Recruiter Ninja bot para el Slack de #Nardoz",
+  "main": "index.js",
+  "author": "Luis Farzati <lfarzati@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "botkit": "^0.2.2",
+    "request": "^2.74.0"
+  }
+}
