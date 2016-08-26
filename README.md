@@ -1,6 +1,8 @@
 # recruiter-bot
 Recruiter Ninja bot para el Slack de #nardoz
 
+![Recruiter Ninja en acción](/screenshot.png?raw=true "Recruiter Ninja en acción")
+
 ## Uso
 
 ```bash
