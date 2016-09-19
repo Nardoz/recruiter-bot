@@ -82,7 +82,7 @@ var noJobsAvailable = [
     '¿Ah sí? Creo que tengo una posición super adecuada para vos. En un ratito me comunico con uno de mis clientes y averiguo bien, volveme a consultar más tarde!',
     '_se frota las manos y empieza a buscar una oferta para hacerle_',
     '_detiene inmediatamente lo que está haciendo y presta atención_',
-    '_abre enormemente los ojos_',
+    '_abre enormemente los ojos_ https://giphy.com/gifs/75IszyEvsH1eg',
     '_te acaba de agregar a su planilla Excel_',
     '_acaba de ponerte en su lista de spam_',
     '_comenzó a seguirte en LinkedIn_'
@@ -98,7 +98,7 @@ controller.hears([/.*(busco|buscando)(.+otro)?.+(trabajo|trabajito|laburo|laburi
     })
 
     setTimeout(function () {
-        var offer = jobOffer() || getRandomOf(noJobsAvailable)
+        var offer = /*jobOffer() ||*/ getRandomOf(noJobsAvailable)
         if (Math.random() > .55) {
             bot.reply(message, offer)
         }
