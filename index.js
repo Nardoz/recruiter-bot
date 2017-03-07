@@ -475,9 +475,8 @@ function goodMorning() {
     }
 }
 
-//Actualizar el guion cada 10 segundos?
-//TODO: buscar un número más adecuado
-cron.schedule('*/10 * * * * *', refreshSpeech);
+//Actualizar el guion cada 20 minutos
+cron.schedule('*/20 * * * *', refreshSpeech);
 
 //Saludar todos los días a las 9:05 Hora Arg
-cron.schedule('* 5 9 * *', goodMorning)
+cron.schedule('* 5 9 * *', goodMorning);
