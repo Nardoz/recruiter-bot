@@ -9,6 +9,7 @@
 var request = require('request')
 var Botkit = require('botkit')
 var moment = require('moment')
+var cron = require('node-cron')
 
 if (!process.env.token) {
     console.log('Error: Specify token in environment')
@@ -23,56 +24,37 @@ if (process.env.debug !== 'true') {
     }
 }
 
-var controller = Botkit.slackbot()
-
 // La idea es que busca los speeches directo al repo git
 var speech = []
 var speechUrl = 'https://raw.githubusercontent.com/nardoz/recruiter-bot/master/messages.txt'
 var lastETag
 
-// Cada 10 segundos chequea si hay nuevos y actualiza el array
-// TODO: mucho para mejorar acá
-function refreshSpeech() {
-  var options = {
-    url: speechUrl,
-    headers: {
-      'If-None-Match': lastETag
-    }
-  }
-  request(options, function (err, response) {
-    if (err) return console.log(err)
-    if (response.statusCode === 200) {
-      lastETag = response.headers.etag
-      speech = response.body.trim().split('\n')
-    }
-  })
-  setTimeout(refreshSpeech, 10000)
-}
-refreshSpeech()
+var controller = Botkit.slackbot()
 
 // login to Slack
 var bot = controller.spawn({
-  token: process.env.token
+    token: process.env.token
 })
 bot.startRTM(function (err, bot, payload) {
-  if (err) {
-    throw new Error('Could not connect to Slack')
-  }
+    if (err) {
+        throw new Error('Could not connect to Slack')
+    }
 })
-bot.configureIncomingWebhook({url: process.env.WEBHOOK })
+bot.configureIncomingWebhook({
+    url: process.env.WEBHOOK
+})
 
 // respuesta random
 // supuestamente con message_received debería funcionar pero no
 // agregando 'ambient' did the trick
-controller.hears(['recruiter speech'], ['direct_message','message_received','ambient'], function (bot, message) {
-  var randomIndex = Math.floor(Math.random()*speech.length)
-  var randomSpeech = speech[randomIndex]
-  try {
-    bot.reply(message, randomSpeech)
-  }
-  catch (err) {
-    console.log('bot reply err:', err)
-  }
+controller.hears(['recruiter speech'], ['direct_message', 'message_received', 'ambient'], function (bot, message) {
+    var randomIndex = Math.floor(Math.random() * speech.length)
+    var randomSpeech = speech[randomIndex]
+    try {
+        bot.reply(message, randomSpeech)
+    } catch (err) {
+        console.log('bot reply err:', err)
+    }
 })
 
 var noJobsAvailable = [
@@ -88,12 +70,12 @@ var noJobsAvailable = [
     '_comenzó a seguirte en LinkedIn_'
 ]
 
-controller.hears([/.*(busco|buscando)(.+otro)?.+(trabajo|trabajito|laburo|laburito)/i], ['direct_message','message_received','ambient'], function (bot, message) {
+controller.hears([/.*(busco|buscando)(.+otro)?.+(trabajo|trabajito|laburo|laburito)/i], ['direct_message', 'message_received', 'ambient'], function (bot, message) {
     bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
         name: 'eyes',
-    }, function(err, res) {
+    }, function (err, res) {
         if (err) bot.botkit.log('Failed to add emoji reaction :(', err);
     })
 
@@ -101,8 +83,7 @@ controller.hears([/.*(busco|buscando)(.+otro)?.+(trabajo|trabajito|laburo|laburi
         var offer = /*jobOffer() ||*/ getRandomOf(noJobsAvailable)
         if (Math.random() > .55) {
             bot.reply(message, offer)
-        }
-        else {
+        } else {
             send(offer, message.channel)
         }
     }, 3000)
@@ -114,7 +95,7 @@ function send(message, channel) {
         channel: channel
     }, function (err, res) {
         if (err) console.log('incoming webhook err:', err)
-    })    
+    })
 }
 
 var goodMondayMessages = [
@@ -378,19 +359,19 @@ var recruitingMessageTechnologies = [
 ]
 
 function getRandomOf(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]   
+    return arr[Math.floor(Math.random() * arr.length)]
 }
-
 
 // cuenta 3 veces, se resetea con el cron que tiene el host que corre este script
 var recruitingMessagesCount = 0
+
 function jobOffer() {
     if (recruitingMessagesCount < 3) {
         var prologue = getRandomOf(recruitingMessagePrologue)
         var role = getRandomOf(recruitingMessageRole)
         var skills = getRandomOf(recruitingMessageSkills)
         var techs = []
-        var tc = Math.floor(Math.random()*4) + 2
+        var tc = Math.floor(Math.random() * 4) + 2
         var ti = 0
         while (ti < tc) {
             var tech = getRandomOf(recruitingMessageTechnologies)
@@ -399,9 +380,9 @@ function jobOffer() {
                 ti++
             }
         }
-        var hasRequi = Math.random()*10 >= .7
+        var hasRequi = Math.random() * 10 >= .7
         var reqs = []
-        var rc = Math.floor(Math.random()*3)
+        var rc = Math.floor(Math.random() * 3)
         var ri = 0
         while (ri < rc) {
             var req = getRandomOf(speech)
@@ -413,7 +394,7 @@ function jobOffer() {
         reqs = reqs.map(r => r.replace(/requisitos:?\s?/i, ''))
 
         var benfs = []
-        var bc = Math.floor(Math.random()*4) + 1
+        var bc = Math.floor(Math.random() * 4) + 1
         var bi = 0
         while (bi < bc) {
             var benf = getRandomOf(speech)
@@ -425,27 +406,32 @@ function jobOffer() {
         benfs = benfs.map(b => b.replace(/beneficios:?\s?/i, ''))
 
         var money = 'Remuneración: a convenir'
-        var moneyUnits = [['hora', 1], ['semana', 8*5], ['mes', 8*5*4*.9], ['año', 8*5*4*12*.9]]
+        var moneyUnits = [
+            ['hora', 1],
+            ['semana', 8 * 5],
+            ['mes', 8 * 5 * 4 * .9],
+            ['año', 8 * 5 * 4 * 12 * .9]
+        ]
         if (Math.random() >= .0) {
             var mu = getRandomOf(moneyUnits)
             var usdHourlyRate = Math.floor(Math.random() * 14 + 18)
             var mcurr = Math.random() > .4 ? '$' : 'U$S'
             // si te garpan en $ asumimos un mercado local mais barato, por eso no es *15 
-            var mmulti = mcurr === '$' ? 11 : 1 
+            var mmulti = mcurr === '$' ? 11 : 1
             var mamount = Math.floor(mu[1] * usdHourlyRate * mmulti)
             if (mamount > 1000) {
                 mamount = Math.floor((mamount / 1000)) * 1000
             }
-            var msep = ['mes','año'].indexOf(mu[0]) >= 0 ? getRandomOf([' al ', ' por ']) : getRandomOf([' por ', '/']) 
-            money = ['Remuneración: *' + mcurr, numberWithCommas(mamount) + msep + mu[0], '*'].join(' ')  
-        } 
+            var msep = ['mes', 'año'].indexOf(mu[0]) >= 0 ? getRandomOf([' al ', ' por ']) : getRandomOf([' por ', '/'])
+            money = ['Remuneración: *' + mcurr, numberWithCommas(mamount) + msep + mu[0], '*'].join(' ')
+        }
 
         var message = [
-            prologue, 
-            role, 
+            prologue,
+            role,
             skills,
-            '\n> * ' + techs.join('\n> * '), 
-            reqs.length ? ('\nRequisitos:\n> * ' + reqs.join('\n> * ')) : '',  
+            '\n> * ' + techs.join('\n> * '),
+            reqs.length ? ('\nRequisitos:\n> * ' + reqs.join('\n> * ')) : '',
             '\nBeneficios:\n> * ' + benfs.join('\n> * '),
             '\n' + money
         ].join(' ')
@@ -454,26 +440,44 @@ function jobOffer() {
 
         return message
     }
-    
 }
-
-
-setInterval(function () {
-    var now = moment().utcOffset(-3)
-
-    if (now.hours() === 9 && now.minutes() === 5) {
-        if (now.weekday === 1) {
-            var rndi = getRandomOf(goodMondayMessages)
-            send(goodMondayMessages[rndi])
-        }
-        else {
-            var rndi = getRandomOf(goodMorningMessages)
-            send(goodMorningMessages[rndi])
-        }  
-    }
-
-}, 1000 * 59)
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
+
+// Cada 10 segundos chequea si hay nuevos y actualiza el array
+// TODO: mucho para mejorar acá
+function refreshSpeech() {
+    var options = {
+        url: speechUrl,
+        headers: {
+            'If-None-Match': lastETag
+        }
+    }
+    request(options, function (err, response) {
+        if (err) return console.log(err)
+        if (response.statusCode === 200) {
+            lastETag = response.headers.etag
+            speech = response.body.trim().split('\n')
+        }
+    })
+}
+
+function goodMorning() {
+    var now = moment().utcOffset(-3)
+    if (now.weekday === 1) {
+        var rndi = getRandomOf(goodMondayMessages)
+        send(goodMondayMessages[rndi])
+    } else {
+        var rndi = getRandomOf(goodMorningMessages)
+        send(goodMorningMessages[rndi])
+    }
+}
+
+//Actualizar el guion cada 10 segundos?
+//TODO: buscar un número más adecuado
+cron.schedule('*/10 * * * * *', refreshSpeech);
+
+//Saludar todos los días a las 9:05 Hora Arg
+cron.schedule('* 5 9 * *', goodMorning)
