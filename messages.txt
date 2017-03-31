@@ -81,3 +81,5 @@ Beneficios: No tenemos limite para los días que te podes tomar de vacaciones
 Requisitos: Sympony, ColdeIgnaiter
 Requisitos: Ruby, Sinatra, Rails, Rspects, RVM
 Beneficios: El balance trabajo/vida es buenísimo
+Beneficios: Alquiler de Canchas de fútbol (varones), Salidas (mujeres)
+Beneficios: Estacionamiento gratuito
