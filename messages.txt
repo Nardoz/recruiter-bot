@@ -83,3 +83,4 @@ Requisitos: Ruby, Sinatra, Rails, Rspects, RVM
 Beneficios: El balance trabajo/vida es buenísimo
 Beneficios: Alquiler de Canchas de fútbol (varones), Salidas (mujeres)
 Beneficios: Estacionamiento gratuito
+Beneficios: Convenio con BGH para la compra de sus productos con descuentos
