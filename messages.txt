@@ -29,7 +29,6 @@ Medicina Prepaga
 Frutas
 Cafe
 Medialunas los viernes
-Ninguno
 Playstation 4 los viernes
 Cuenta de Spotify
 Proyectos internos con Arduino y Raspberry
@@ -54,7 +53,6 @@ OSDE
 MacBook Pro y Celular Empresarial
 Home office
 Transporte
-Ninguno de todos
 Sueldo semanal
 Flexibilidad horaria
 Mínimo porcentaje por inflacion
